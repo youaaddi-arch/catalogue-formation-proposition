@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tableau des Formations — FormaPro 2025–2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0D1B2A;
+    --gold: #C8952A;
+    --cream: #F8F4EE;
+    --text: #1a2535;
+    --muted: #6B7A8D;
+    --border: #E0D9D0;
+    --badge-oblig: #C0392B;
+    --badge-rs: #1A7340;
+    --badge-comp: #1A4F8A;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--cream); color: var(--text); font-size: 14px; }
+
+  header {
+    background: var(--navy);
+    color: white;
+    padding: 32px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  header h1 { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 900; }
+  header h1 span { color: var(--gold); }
+  header p { color: rgba(255,255,255,0.5); font-size: 13px; margin-top: 4px; }
+  .header-stats { display: flex; gap: 24px; text-align: right; }
+  .header-stats .sn { font-family: 'Playfair Display', serif; font-size: 28px; font-weight: 700; color: var(--gold); display: block; }
+  .header-stats .sl { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: rgba(255,255,255,0.4); }
+
+  .main { padding: 32px 40px; }
+
+  .stat-row { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+  .stat-card { background: white; border-radius: 10px; padding: 14px 20px; min-width: 120px; border: 1px solid var(--border); }
+  .stat-card .n { font-size: 24px; font-weight: 600; }
+  .stat-card .l { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+  .controls input, .controls select {
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    background: white;
+    color: var(--text);
+    outline: none;
+  }
+  .controls input { flex: 1; min-width: 220px; }
+  .controls input:focus, .controls select:focus { border-color: var(--gold); }
+
+  .table-wrap { border-radius: 12px; overflow: hidden; border: 1px solid var(--border); background: white; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: var(--navy); }
+  thead th {
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 600;
+    color: rgba(255,255,255,0.7);
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+  }
+  thead th:hover { color: white; }
+  thead th.sorted { color: var(--gold); }
+  tbody tr { border-bottom: 1px solid var(--border); transition: background 0.1s; }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--cream); }
+  tbody td { padding: 11px 16px; vertical-align: middle; }
+  .name-cell { font-weight: 500; }
+  .ref-cell { font-size: 12px; color: var(--muted); }
+
+  .badge { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 100px; font-weight: 600; white-space: nowrap; }
+  .b-oblig { background: #FDECEA; color: var(--badge-oblig); }
+  .b-cert  { background: #E8F5EE; color: var(--badge-rs); }
+  .b-perf  { background: #EFF4FB; color: var(--badge-comp); }
+  .b-cpf   { background: #FFF8E7; color: #8B5E0A; }
+  .b-no    { background: #f0f0f0; color: #999; }
+
+  .empty { text-align: center; padding: 40px; color: var(--muted); font-size: 14px; }
+  .count { font-size: 12px; color: var(--muted); text-align: right; margin-top: 10px; }
+
+  footer { background: var(--navy); color: rgba(255,255,255,0.4); text-align: center; padding: 20px 40px; font-size: 12px; margin-top: 40px; }
+  footer span { color: var(--gold); font-family: 'Playfair Display', serif; }
+
+  @media (max-width: 768px) {
+    header { flex-direction: column; align-items: flex-start; gap: 16px; padding: 24px 20px; }
+    .main { padding: 20px; }
+    .header-stats { flex-direction: row; text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Catalogue <span>Formation</span> Continue</h1>
+    <p>FormaPro · Édition 2025–2026 · Conformité Qualiopi</p>
+  </div>
+  <div class="header-stats">
+    <div><span class="sn">138</span><span class="sl">Formations</span></div>
+    <div><span class="sn">14</span><span class="sl">Domaines</span></div>
+    <div><span class="sn">CPF</span><span class="sl">Éligible</span></div>
+  </div>
+</header>
+
+<div class="main">
+  <div class="stat-row" id="stats"></div>
+
+  <div class="controls">
+    <input type="text" id="search" placeholder="🔍  Rechercher une formation...">
+    <select id="filterDomain"><option value="">Tous les domaines</option></select>
+    <select id="filterType">
+      <option value="">Tous les types</option>
+      <option value="Obligatoire">Obligatoire</option>
+      <option value="Certification RS">Certification RS</option>
+      <option value="Perfectionnement">Perfectionnement</option>
+    </select>
+    <select id="filterCPF">
+      <option value="">CPF : tous</option>
+      <option value="Oui">Éligible CPF</option>
+    </select>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:18%" onclick="sort('domain')">Domaine <span id="s-domain"></span></th>
+          <th style="width:32%" onclick="sort('name')">Formation <span id="s-name"></span></th>
+          <th style="width:14%" onclick="sort('type')">Type <span id="s-type"></span></th>
+          <th style="width:18%">Référence légale</th>
+          <th style="width:10%" onclick="sort('cpf')">CPF <span id="s-cpf"></span></th>
+          <th style="width:8%" onclick="sort('opco')">OPCO <span id="s-opco"></span></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+  <div class="count" id="count"></div>
+</div>
+
+<footer>© 2025 <span>FormaPro</span> — Catalogue Formation Continue 2025–2026 · Qualiopi · CPF · OPCO</footer>
+
+<script>
+const data = [
+  {domain:"🛍 Commerce",name:"RGPD — Protection des données clients",type:"Obligatoire",ref:"Règl. UE 2016/679",cpf:"Selon",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Sécurité des encaissements et prévention de la fraude",type:"Obligatoire",ref:"",cpf:"Non",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Lutte contre le blanchiment (LCB-FT)",type:"Obligatoire",ref:"Selon activité",cpf:"Non",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Techniques de vente et closing",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Relation client et fidélisation",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Merchandising et mise en rayon",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Gestion des réclamations et litiges",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Vente digitale et omnicanal",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Négociation commerciale avancée",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Conseiller de vente",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Relation client à distance",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🛍 Commerce",name:"Techniques de négociation commerciale",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"📊 Management",name:"Prévention des risques psychosociaux (RPS)",type:"Obligatoire",ref:"Art. L4121-1",cpf:"Oui",opco:"Oui"},
+  {domain:"📊 Management",name:"Lutte contre le harcèlement moral et sexuel",type:"Obligatoire",ref:"Loi Travail",cpf:"Non",opco:"Oui"},
+  {domain:"📊 Management",name:"Santé et sécurité au travail pour managers",type:"Obligatoire",ref:"",cpf:"Non",opco:"Oui"},
+  {domain:"📊 Management",name:"Non-discrimination et égalité professionnelle",type:"Obligatoire",ref:"",cpf:"Non",opco:"Oui"},
+  {domain:"📊 Management",name:"Leadership et posture managériale",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"📊 Management",name:"Gestion des conflits et médiation",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"📊 Management",name:"Management à distance et hybride",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"📊 Management",name:"Conduite du changement",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"📊 Management",name:"Gestion de la performance et entretiens",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"📊 Management",name:"Cohésion et animation d'équipe",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"📊 Management",name:"Management d'équipe opérationnelle",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"📊 Management",name:"Leadership et management",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"📊 Management",name:"Gestion de projet",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"Droit du travail — mises à jour annuelles",type:"Obligatoire",ref:"Code du travail",cpf:"Non",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"Non-discrimination à l'embauche",type:"Obligatoire",ref:"Art. L1132-1",cpf:"Non",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"RGPD appliqué aux RH",type:"Obligatoire",ref:"Règl. UE 2016/679",cpf:"Selon",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"Entretien professionnel",type:"Obligatoire",ref:"Obligation employeur",cpf:"Non",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"Techniques de recrutement et sourcing",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"Marque employeur et attractivité",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"GPEC — Gestion prévisionnelle des emplois",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"Qualité de vie au travail (QVT)",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"Paie et administration du personnel",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"Chargé(e) de recrutement",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"Gestion des ressources humaines",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"👥 Ressources Humaines",name:"Prévention RPS / QVT",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🤖 Intelligence Artificielle",name:"Sensibilisation RGPD et usage de l'IA",type:"Obligatoire",ref:"AI Act (à venir)",cpf:"Selon",opco:"Oui"},
+  {domain:"🤖 Intelligence Artificielle",name:"Initiation à l'IA — comprendre sans coder",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🤖 Intelligence Artificielle",name:"Prompt engineering",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🤖 Intelligence Artificielle",name:"Automatisation des tâches répétitives",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🤖 Intelligence Artificielle",name:"IA appliquée aux métiers (RH, commerce…)",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🤖 Intelligence Artificielle",name:"Enjeux éthiques et légaux de l'IA",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🤖 Intelligence Artificielle",name:"Introduction à la data et aux indicateurs",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🤖 Intelligence Artificielle",name:"IA appliquée en entreprise",type:"Certification RS",ref:"RS en cours",cpf:"Oui",opco:"Oui"},
+  {domain:"🤖 Intelligence Artificielle",name:"Data & Intelligence Artificielle",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🤖 Intelligence Artificielle",name:"Transformation digitale des organisations",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"💻 Bureautique",name:"Excel — débutant, intermédiaire, avancé",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"💻 Bureautique",name:"Word et PowerPoint professionnels",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"💻 Bureautique",name:"Outlook et gestion du temps numérique",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"💻 Bureautique",name:"Microsoft Teams et SharePoint",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"💻 Bureautique",name:"Google Workspace (Docs, Sheets, Drive)",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"💻 Bureautique",name:"Tableaux de bord et reporting",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"💻 Bureautique",name:"TOSA Excel / Word / PowerPoint",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"💻 Bureautique",name:"ICDL — Certification internationale bureautique",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"💻 Bureautique",name:"TOSA Digital — outils collaboratifs",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🌍 Langues",name:"Anglais professionnel — tous niveaux",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"🌍 Langues",name:"Anglais métier (hôtellerie, commerce, technique)",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"🌍 Langues",name:"Espagnol professionnel",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"🌍 Langues",name:"Communication orale et prise de parole en anglais",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"🌍 Langues",name:"Préparation aux certifications linguistiques",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"🌍 Langues",name:"Autres langues sur demande",type:"Perfectionnement",ref:"",cpf:"Selon",opco:"Selon"},
+  {domain:"🌍 Langues",name:"TOEIC Listening & Reading",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🌍 Langues",name:"TOEIC Speaking & Writing",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🌍 Langues",name:"LINGUASKILL — Cambridge Assessment",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🌍 Langues",name:"BRIGHT Language",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Protocoles d'hygiène et de sécurité",type:"Obligatoire",ref:"Code du travail",cpf:"Non",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Utilisation des produits chimiques (FDS)",type:"Obligatoire",ref:"Règl. REACH",cpf:"Non",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Gestes et postures — prévention TMS",type:"Obligatoire",ref:"",cpf:"Non",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Prévention des risques professionnels",type:"Obligatoire",ref:"",cpf:"Non",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Techniques de nettoyage et désinfection",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Organisation du travail et tournées",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Gestion des déchets et écoresponsabilité",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Propreté en milieu hospitalier",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Agent de service hospitalier",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Hygiène et propreté en entreprise",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🧼 Hygiène & Propreté",name:"Prévention des risques TMS",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"AIPR — Autorisation d'intervention réseaux",type:"Obligatoire",ref:"Décret 2012",cpf:"Non",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"Travail en hauteur et port du harnais",type:"Obligatoire",ref:"",cpf:"Non",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"SST — Sauveteur Secouriste du Travail",type:"Obligatoire",ref:"Recommandation INRS",cpf:"Oui",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"PPSPS et plan de prévention chantier",type:"Obligatoire",ref:"",cpf:"Non",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"Lecture de plans et métrés",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"Conduite de chantier et coordination",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"Rénovation énergétique — RGE",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"BIM — Maquette numérique",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"Marchés publics et devis travaux",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"Chef de chantier BTP",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"Conducteur de travaux",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🏗 Bâtiment & TP",name:"Rénovation énergétique RGE",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Habilitation électrique B0/H0",type:"Obligatoire",ref:"NF C 18-510",cpf:"Non",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Habilitation électrique B1/B2/BR/BC",type:"Obligatoire",ref:"NF C 18-510",cpf:"Non",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Habilitation haute tension HT",type:"Obligatoire",ref:"NF C 18-510",cpf:"Non",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Recyclage habilitation (tous 3 ans)",type:"Obligatoire",ref:"NF C 18-510",cpf:"Non",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Installations photovoltaïques",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Domotique et bâtiment intelligent",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Bornes IRVE — recharge véhicules électriques",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Maintenance des tableaux électriques",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Électricien du bâtiment",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Installation IRVE",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"⚡ Électricité",name:"Technicien en énergie renouvelable",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"HACCP — Hygiène alimentaire",type:"Obligatoire",ref:"Règl. CE 852/2004",cpf:"Oui",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Permis d'exploitation",type:"Obligatoire",ref:"Art. L3332-1-1",cpf:"Non",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Formation à la vente d'alcool",type:"Obligatoire",ref:"",cpf:"Non",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Allergènes alimentaires",type:"Obligatoire",ref:"Règl. UE 1169/2011",cpf:"Non",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Techniques culinaires et gastronomie",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Gestion des coûts et food cost",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Management en restauration",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Service en salle et œnologie",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Cuisine végétale et tendances alimentaires",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Hygiène alimentaire HACCP",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Responsable de restaurant",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🍽 Restauration",name:"Cuisinier / Chef de partie",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"Sécurité incendie ERP",type:"Obligatoire",ref:"Arrêté 25/06/1980",cpf:"Non",opco:"Oui"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"RGPD (données clients hôtel)",type:"Obligatoire",ref:"Règl. UE 2016/679",cpf:"Selon",opco:"Oui"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"Permis d'exploitation (bar/restaurant)",type:"Obligatoire",ref:"Art. L3332-1-1",cpf:"Non",opco:"Oui"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"Accueil et relation client haut de gamme",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"Revenue management et yield",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"Logiciels PMS (Fidelio, Opera…)",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"Gestion des OTA et e-réputation",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"Anglais hôtelier",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"Réceptionniste en hôtellerie",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"Gouvernant(e) d'hôtel",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🏨 Hôtellerie & Tourisme",name:"Revenue Manager",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"💅 Esthétique",name:"Hygiène et asepsie en institut",type:"Obligatoire",ref:"Arrêté 06/01/1962",cpf:"Non",opco:"Selon"},
+  {domain:"💅 Esthétique",name:"Utilisation des appareils esthétiques",type:"Obligatoire",ref:"Conformité régl.",cpf:"Non",opco:"Selon"},
+  {domain:"💅 Esthétique",name:"Sensibilisation aux produits cosmétiques",type:"Obligatoire",ref:"Règl. UE cosmétiques",cpf:"Non",opco:"Selon"},
+  {domain:"💅 Esthétique",name:"Techniques de soins du visage avancées",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"💅 Esthétique",name:"Épilation et soins du corps",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"💅 Esthétique",name:"Extensions de cils et nail art",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"💅 Esthétique",name:"Gestion et développement d'un institut",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"💅 Esthétique",name:"Vente additionnelle en institut",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Selon"},
+  {domain:"💅 Esthétique",name:"Esthéticien(ne) cosmétologue",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Selon"},
+  {domain:"💅 Esthétique",name:"Conseiller(ère) en image",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Selon"},
+  {domain:"💅 Esthétique",name:"Praticien(ne) bien-être",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Selon"},
+  {domain:"👶 Petite Enfance",name:"Premiers secours nourrisson (PSC1 adapté)",type:"Obligatoire",ref:"Décret 2021-1131",cpf:"Oui",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"Protection de l'enfance — signalement",type:"Obligatoire",ref:"",cpf:"Non",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"Hygiène et sécurité en crèche",type:"Obligatoire",ref:"Code de la santé",cpf:"Non",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"HACCP (cuisines de crèche)",type:"Obligatoire",ref:"Règl. CE 852/2004",cpf:"Oui",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"Éveil et développement de l'enfant 0-3 ans",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"Gestion des comportements difficiles",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"Communication avec les familles",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"Accueil d'enfants en situation de handicap",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"Management d'une structure petite enfance",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"Auxiliaire de puériculture",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"Responsable de structure petite enfance",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"👶 Petite Enfance",name:"Accompagnant éducatif petite enfance",type:"Certification RS",ref:"RS · CPF",cpf:"Oui",opco:"Oui"},
+  {domain:"🔄 Transversal",name:"Sauveteur Secouriste du Travail (SST)",type:"Obligatoire",ref:"Recommandation INRS",cpf:"Oui",opco:"Oui"},
+  {domain:"🔄 Transversal",name:"RGPD — Protection des données",type:"Obligatoire",ref:"Règl. UE 2016/679",cpf:"Oui",opco:"Oui"},
+  {domain:"🔄 Transversal",name:"Handicap et inclusion en entreprise",type:"Obligatoire",ref:"OETH",cpf:"Non",opco:"Oui"},
+  {domain:"🔄 Transversal",name:"RSE & Développement durable",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🔄 Transversal",name:"Gestion du stress et bien-être",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+  {domain:"🔄 Transversal",name:"Communication professionnelle",type:"Perfectionnement",ref:"",cpf:"Oui",opco:"Oui"},
+];
+
+let sortKey = 'domain', sortDir = 1;
+
+const domains = [...new Set(data.map(d => d.domain))];
+const sel = document.getElementById('filterDomain');
+domains.forEach(d => { const o = document.createElement('option'); o.value = d; o.textContent = d; sel.appendChild(o); });
+
+function badgeType(t) {
+  if(t==='Obligatoire') return `<span class="badge b-oblig">Obligatoire</span>`;
+  if(t==='Certification RS') return `<span class="badge b-cert">Certification RS</span>`;
+  return `<span class="badge b-perf">Perfectionnement</span>`;
+}
+function badgeCpf(v) {
+  if(v==='Oui') return `<span class="badge b-cpf">CPF</span>`;
+  if(v==='Selon') return `<span class="badge b-no">Selon</span>`;
+  return `<span class="badge b-no">—</span>`;
+}
+function badgeOpco(v) {
+  if(v==='Oui') return `<span class="badge b-cert">Oui</span>`;
+  return `<span class="badge b-no">Selon</span>`;
+}
+
+function render() {
+  const q = document.getElementById('search').value.toLowerCase();
+  const dom = document.getElementById('filterDomain').value;
+  const typ = document.getElementById('filterType').value;
+  const cpf = document.getElementById('filterCPF').value;
+
+  const filtered = data.filter(r =>
+    (!q || r.name.toLowerCase().includes(q) || r.domain.toLowerCase().includes(q) || r.ref.toLowerCase().includes(q)) &&
+    (!dom || r.domain === dom) &&
+    (!typ || r.type === typ) &&
+    (!cpf || r.cpf === cpf)
+  ).sort((a,b) => a[sortKey].localeCompare(b[sortKey], 'fr') * sortDir);
+
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = filtered.length === 0
+    ? `<tr><td colspan="6" class="empty">Aucune formation trouvée.</td></tr>`
+    : filtered.map(r => `<tr>
+        <td>${r.domain}</td>
+        <td class="name-cell">${r.name}</td>
+        <td>${badgeType(r.type)}</td>
+        <td class="ref-cell">${r.ref}</td>
+        <td>${badgeCpf(r.cpf)}</td>
+        <td>${badgeOpco(r.opco)}</td>
+      </tr>`).join('');
+
+  const oblig = filtered.filter(r=>r.type==='Obligatoire').length;
+  const cert  = filtered.filter(r=>r.type==='Certification RS').length;
+  const perf  = filtered.filter(r=>r.type==='Perfectionnement').length;
+
+  document.getElementById('stats').innerHTML = `
+    <div class="stat-card"><div class="n">${filtered.length}</div><div class="l">Formations</div></div>
+    <div class="stat-card"><div class="n" style="color:var(--badge-oblig)">${oblig}</div><div class="l">Obligatoires</div></div>
+    <div class="stat-card"><div class="n" style="color:var(--badge-comp)">${perf}</div><div class="l">Perfectionnement</div></div>
+    <div class="stat-card"><div class="n" style="color:var(--badge-rs)">${cert}</div><div class="l">Certifications RS</div></div>
+  `;
+  document.getElementById('count').textContent = `${filtered.length} résultat${filtered.length > 1 ? 's' : ''}`;
+}
+
+function sort(k) {
+  if(sortKey===k) sortDir*=-1; else { sortKey=k; sortDir=1; }
+  ['domain','name','type','cpf','opco'].forEach(x => {
+    const el = document.getElementById('s-'+x);
+    if(el) el.textContent = sortKey===x ? (sortDir===1?' ↑':' ↓') : '';
+    const th = document.querySelector(`[onclick="sort('${x}')"]`);
+    if(th) th.classList.toggle('sorted', sortKey===x);
+  });
+  render();
+}
+
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('filterDomain').addEventListener('change', render);
+document.getElementById('filterType').addEventListener('change', render);
+document.getElementById('filterCPF').addEventListener('change', render);
+
+render();
+</script>
+</body>
+</html>
